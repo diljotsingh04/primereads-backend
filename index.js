@@ -1,6 +1,6 @@
 const express = require('express');
-const { signup, signin } = require('./controllers/auth');
 const authentication = require('./routes/authentication');
+const posts = require('./routes/posts');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,12 +15,11 @@ app.get('/', (req, res) => {
       });
 });
 
-app.post('/signup', signup);
+app.use('/auth', authentication);
 
-app.post('/signin', signin);
+app.use('/posts', posts);
 
-app.get('/auth', authentication);
-
+// server port
 app.listen(PORT, () => 
       console.log('Server running on ' + PORT)
 );

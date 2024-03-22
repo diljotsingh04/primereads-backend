@@ -1,7 +1,8 @@
 const { User } = require('../db/database');
 const { SignupValidation, SigninValidation } = require('../validation/dataValidation');
-const { Sign } = require('../validation/jwttokens');
+const { Sign, Verify } = require('../validation/jwttokens');
 
+// Signup Controller
 const signup = async (req, res) => {
       const userData = req.body;
       const validUserData = SignupValidation.safeParse(userData);
@@ -16,10 +17,10 @@ const signup = async (req, res) => {
             const newUser = await User.create({
                   name: validUserData.data.name,
                   email: validUserData.data.email,
-                  password: validUserData.data.password
+                  password: validUserData.data.password,
+                  balance: 10
             });
 
-            // adding jsonwebtokens
             const token = Sign(newUser._id, newUser.name, newUser.email);
 
             return res.send({ 
@@ -33,7 +34,7 @@ const signup = async (req, res) => {
       }
 }
 
-
+// SignIn Controller
 const signin = async(req, res)=>{
       const userData = req.body;
       const validData = SigninValidation.safeParse(userData);
@@ -59,7 +60,17 @@ const signin = async(req, res)=>{
       }
 }
 
+// Controller to validate user
+const validateUser = (req, res) =>{
+      const bToken = req.headers.authorization;
+
+      const verifyToken = Verify(bToken);
+
+      return res.send(verifyToken);
+}
+
 module.exports = {
       signup,
-      signin
+      signin,
+      validateUser
 }

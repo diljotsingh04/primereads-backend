@@ -1,5 +1,6 @@
 const { z } = require('zod');
 
+// This is a zod validation schema for Signup
 const SignupValidation = z.object({
       name: z.string(),
       email: z.string().email({ message: "Invalid email address" }),
@@ -7,6 +8,7 @@ const SignupValidation = z.object({
       posts: z.array().optional()
 });
 
+// zod validation schema for signin
 const SigninValidation = z.object({
       email: z.string().email(),
       password: z.string().min(6)

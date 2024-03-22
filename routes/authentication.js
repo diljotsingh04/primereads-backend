@@ -1,9 +1,13 @@
-const express = require('express');
+const { Router } = require('express');
+const { signup, signin, validateUser } = require('../controllers/auth');
 
-const router = express.Router();
+const router = Router();
 
-router.get('/me', (req, res) => {
-      return res.send('you are inside router');
-})
+// Route for /auth/me
+router.post('/me', validateUser);
+// Route for /auth/signin
+router.post('/signin', signin);
+// Route for /auth/signup
+router.post('/signup', signup);
 
 module.exports = router;
