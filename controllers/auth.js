@@ -8,6 +8,7 @@ const signup = async (req, res) => {
       const validUserData = SignupValidation.safeParse(userData);
       if (!validUserData.success) {
             return res.send({
+                  success: false,
                   message: 'Invalid Credentials'
             })
       }
@@ -23,12 +24,14 @@ const signup = async (req, res) => {
 
             const token = Sign(newUser._id, newUser.name, newUser.email);
 
-            return res.send({ 
-                  token
+            return res.status(200).cookie('access-token', token).send({
+                  success: true,
+                  message: 'SignUp Successful'
             });
       }
       catch (e) {
             return res.send({
+                  success: false,
                   message: 'Email Already Exists'
             });
       }
@@ -41,6 +44,7 @@ const signin = async(req, res)=>{
 
       if(!validData.success){
             return res.send({
+                  success: false,
                   message: 'Invalid Credentials'
             });
       }
@@ -48,13 +52,15 @@ const signin = async(req, res)=>{
       try{
             const findUser = await User.findOne(validData.data);
             const token = Sign(findUser._id, findUser.name, findUser.email);
-
-            return res.send({
-                  token
+            
+            return res.status(200).cookie('access-token', token).send({
+                  success: true,
+                  message: 'SignIn Successful'
             });
       }
       catch(e){
             return res.send({
+                  success: false,
                   message: 'Invalid Email and Password'
             });
       }
@@ -62,15 +68,23 @@ const signin = async(req, res)=>{
 
 // Controller to validate user
 const validateUser = (req, res) =>{
-      const bToken = req.headers.authorization;
+      const token = req.cookies['access-token'];
 
-      const verifyToken = Verify(bToken);
+      const verifyToken = Verify(token);
+      return res.status(200).send(verifyToken);
+}
 
-      return res.send(verifyToken);
+// Controller to logout the user
+const logout = (req, res) => {
+      return res.status(200).clearCookie('access-token').send({
+            success: true,
+            message: 'Successfully Logout'
+      })
 }
 
 module.exports = {
       signup,
       signin,
-      validateUser
+      validateUser,
+      logout
 }

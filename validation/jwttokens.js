@@ -13,10 +13,8 @@ const Sign = (id, name, email) =>{
 }
 
 // Function to verify the user's token
-const Verify = (bToken) =>{
+const Verify = (token) =>{
       try{
-            const token = bToken.split(' ')[1];
-            
             const verifyToken = jwt.verify(token, key);
 
             if(verifyToken){
