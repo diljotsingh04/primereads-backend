@@ -19,6 +19,7 @@ const signup = async (req, res) => {
                   name: validUserData.data.name,
                   email: validUserData.data.email,
                   password: validUserData.data.password,
+                  userImage: validUserData.data.userImage,
                   balance: 10
             });
 
