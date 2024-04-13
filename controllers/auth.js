@@ -5,6 +5,7 @@ const { Sign, Verify } = require('../validation/jwttokens');
 // Signup Controller
 const signup = async (req, res) => {
       const userData = req.body;
+      // console.log(userData)
       const validUserData = SignupValidation.safeParse(userData);
       if (!validUserData.success) {
             return res.send({
@@ -25,7 +26,9 @@ const signup = async (req, res) => {
 
             const token = Sign(newUser._id, newUser.name, newUser.email);
 
-            return res.status(200).cookie('access-token', token).send({
+            return res.status(200).cookie('access-token', token, {
+                  httpOnly: true
+            }).send({
                   success: true,
                   message: 'SignUp Successful'
             });

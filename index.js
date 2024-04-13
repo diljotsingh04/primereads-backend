@@ -1,7 +1,8 @@
 const express = require('express');
-const cookieParser = require('cookie-parser'); 
+const cookieParser = require('cookie-parser');
 const authentication = require('./routes/authentication');
 const posts = require('./routes/posts');
+const cors = require('cors')
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,6 +10,7 @@ const PORT = process.env.PORT || 3000;
 // middlewares
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 // routes
 app.get('/', (req, res) => {
@@ -19,9 +21,17 @@ app.get('/', (req, res) => {
 
 app.use('/auth', authentication);
 
+app.get("/getcookie", (req, res) => {
+
+      res.send({
+            message: 'got request',
+            cookie: req.cookies['access-token']
+      });
+});
+
 // app.use('/posts', posts);
 
 // server port
-app.listen(PORT, () => 
+app.listen(PORT, () =>
       console.log('Server running on ' + PORT)
 );
