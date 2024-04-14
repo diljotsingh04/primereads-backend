@@ -21,6 +21,8 @@ app.get('/', (req, res) => {
 
 app.use('/auth', authentication);
 
+
+// apis to be deleted later
 app.get("/getcookie", (req, res) => {
 
       res.send({
@@ -28,6 +30,13 @@ app.get("/getcookie", (req, res) => {
             cookie: req.cookies['access-token']
       });
 });
+
+app.get("/clearcookie", (req, res) => {
+      res.clearCookie('access-token').send({
+            success: true,
+            message: 'cookies cleared successfully'
+      })
+})
 
 // app.use('/posts', posts);
 

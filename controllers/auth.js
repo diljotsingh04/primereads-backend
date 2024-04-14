@@ -26,11 +26,14 @@ const signup = async (req, res) => {
 
             const token = Sign(newUser._id, newUser.name, newUser.email);
 
+            const {password, balance, ...rest} = newUser._doc;
+
             return res.status(200).cookie('access-token', token, {
                   httpOnly: true
             }).send({
                   success: true,
-                  message: 'SignUp Successful'
+                  message: 'SignUp Successful',
+                  ...rest
             });
       }
       catch (e) {
