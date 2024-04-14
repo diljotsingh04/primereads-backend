@@ -59,10 +59,13 @@ const signin = async(req, res)=>{
       try{
             const findUser = await User.findOne(validData.data);
             const token = Sign(findUser._id, findUser.name, findUser.email);
+
+            const {password, balance, ...rest} = findUser._doc;
             
             return res.status(200).cookie('access-token', token).send({
                   success: true,
-                  message: 'SignIn Successful'
+                  message: 'SignIn Successful',
+                  ...rest
             });
       }
       catch(e){
