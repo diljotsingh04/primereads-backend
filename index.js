@@ -31,13 +31,6 @@ app.get("/getcookie", (req, res) => {
       });
 });
 
-app.get("/clearcookie", (req, res) => {
-      res.clearCookie('access-token').send({
-            success: true,
-            message: 'cookies cleared successfully'
-      })
-})
-
 // app.use('/posts', posts);
 
 // server port
