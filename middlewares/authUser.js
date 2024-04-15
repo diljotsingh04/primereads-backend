@@ -2,7 +2,9 @@ const { Verify } = require("../validation/jwttokens");
 
 
 const authUser = (req, res, next) => {
-      const token = req.headers.authorization;
+      const token = req.cookies['access-token']
+
+      // console.log(token)
       
       try{
             const verify = Verify(token);
@@ -13,12 +15,14 @@ const authUser = (req, res, next) => {
             }
             else{
                   return res.send({
+                        success: false,
                         message: 'Try Login / SignUp'
                   })
             }
       }
       catch(e){
             return res.send({
+                  success: false,
                   message: 'Try Login / SignUp'
             })
       }

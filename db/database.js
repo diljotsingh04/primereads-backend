@@ -18,13 +18,10 @@ const userSchema = mongoose.Schema({
 // Post's Schema
 const postSchema = mongoose.Schema({
       title: { type: String, required: true },
-      description: { type: String, required: true },
-      thumbnail: { type: String },
+      content: { type: String, required: true },
+      image: { type: String },
       author: { type: String },
       hashtags: [String],
-      likes: Number,
-      dislikes: Number,
-      comments: [{name: String, comment: String}],
       refTo: mongoose.Schema.Types.ObjectId
 }, { timestamps: true } );
 

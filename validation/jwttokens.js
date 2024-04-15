@@ -26,10 +26,8 @@ const Verify = (token) =>{
       }
 }
 
-const Decode = (bToken) =>{
+const Decode = (token) =>{
       try{
-            const token = bToken.split(' ')[1];
-
             const decodeToken = jwt.decode(token);
 
             return decodeToken;

@@ -14,7 +14,16 @@ const SigninValidation = z.object({
       password: z.string().min(6)
 })
 
+// zod validation schema for post
+const PostDataValidation = z.object({
+      title: z.string(),
+      content: z.string(),
+      image: z.string().optional(),
+      hashtags: z.array(z.string()).optional()
+})
+
 module.exports = {
       SignupValidation, 
-      SigninValidation
+      SigninValidation,
+      PostDataValidation
 }

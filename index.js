@@ -20,6 +20,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/auth', authentication);
+app.use('/posts', posts);
 
 
 // apis to be deleted later
@@ -31,7 +32,6 @@ app.get("/getcookie", (req, res) => {
       });
 });
 
-// app.use('/posts', posts);
 
 // server port
 app.listen(PORT, () =>
