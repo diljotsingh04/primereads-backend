@@ -6,7 +6,7 @@ const { titleCheck } = require('../middlewares/titleCheck');
 
 const router = Router();
 
-router.get('/', authUser, getAllPosts);
+router.post('/getpost', authUser, getAllPosts);
 
 router.post('/addblog', [authUser, titleCheck], addBlog);
 
