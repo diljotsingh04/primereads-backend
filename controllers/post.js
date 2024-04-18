@@ -20,7 +20,7 @@ const getAllPosts = async (req, res) => {
                   })
             }).sort({ updatedAt: sortDirection }).skip(startIndex).limit(limit);
             
-            const totalPosts = await Post.countDocuments();
+            const totalPosts = (req.query.userId) ? await Post.countDocuments({refTo: req.query.userId}) : await Post.countDocuments();
 
             return res.status(200).send({
                   success: true,
