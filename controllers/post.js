@@ -83,7 +83,7 @@ const editBlog = async (req, res) => {
 
       // Check if the access token is valid
       if (!cookieData) {
-            return res.status(401).json({
+            return res.json({
                   success: false,
                   message: 'Invalid Token'
             });
@@ -93,7 +93,7 @@ const editBlog = async (req, res) => {
 
             // Check if the user is authorized to edit the post
             if (dataToEdit.refTo !== cookieData.id) {
-                  return res.status(403).json({
+                  return res.json({
                         success: false,
                         message: 'You are not authorized to edit this post'
                   });
@@ -104,7 +104,7 @@ const editBlog = async (req, res) => {
 
             // If the validation fails, return an error response
             if (!validatedData.success) {
-                  return res.status(400).json({
+                  return res.json({
                         success: false,
                         message: 'Invalid Post Data'
                   });
