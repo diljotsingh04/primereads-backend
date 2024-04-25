@@ -7,9 +7,9 @@ const getAllPosts = async (req, res) => {
       const limit = parseInt(req.query.limit) || 9;
       const sortDirection = (req.query.order === 'asc') ? 1 : -1;
 
-      try{
+      try {
             const postData = await Post.find({
-                  ...(req.body.hashtagSearch && {hashtags: {$in: req.body.hashtagSearch}}),
+                  ...(req.body.hashtagSearch && { hashtags: { $in: req.body.hashtagSearch } }),
                   ...(req.query.userId && { refTo: req.query.userId }),
                   ...(req.query.postId && { _id: req.query.postId }),
                   ...(req.query.searchTerm && {
@@ -19,8 +19,8 @@ const getAllPosts = async (req, res) => {
                         ],
                   })
             }).sort({ updatedAt: sortDirection }).skip(startIndex).limit(limit);
-            
-            const totalPosts = (req.query.userId) ? await Post.countDocuments({refTo: req.query.userId}) : await Post.countDocuments();
+
+            const totalPosts = (req.query.userId) ? await Post.countDocuments({ refTo: req.query.userId }) : await Post.countDocuments();
 
             return res.status(200).send({
                   success: true,
@@ -28,7 +28,7 @@ const getAllPosts = async (req, res) => {
                   totalPosts
             })
       }
-      catch(e){
+      catch (e) {
             return res.status(400).send({
                   success: false,
                   message: 'Failed to get Posts'
@@ -74,7 +74,72 @@ const addBlog = async (req, res) => {
       }
 }
 
+const editBlog = async (req, res) => {
+
+      const dataToEdit = req.body;
+
+      const cookieData = Decode(req.cookies['access-token']);
+
+
+      // Check if the access token is valid
+      if (!cookieData) {
+            return res.status(401).json({
+                  success: false,
+                  message: 'Invalid Token'
+            });
+      }
+
+      try {
+
+            // Check if the user is authorized to edit the post
+            if (dataToEdit.refTo !== cookieData.id) {
+                  return res.status(403).json({
+                        success: false,
+                        message: 'You are not authorized to edit this post'
+                  });
+            }
+
+            // Validate the updated post data
+            const validatedData = PostDataValidation.safeParse(dataToEdit);
+
+            // If the validation fails, return an error response
+            if (!validatedData.success) {
+                  return res.status(400).json({
+                        success: false,
+                        message: 'Invalid Post Data'
+                  });
+            }
+
+            const updatePost = await Post.findByIdAndUpdate(
+                  dataToEdit._id,
+                  {
+                        $set:{
+                              title: dataToEdit.title,
+                              hashtags: dataToEdit.hashtags,
+                              image: dataToEdit.image,
+                              content: dataToEdit.content
+                        }
+                  },
+                  { new: true }
+            );
+
+            return res.status(200).json({
+                  success: true,
+                  message: 'Blog Updated Successfully'
+            });
+
+      } catch (error) {
+            // If an error occurs, return an error response
+            console.log(error)
+            return res.json({
+                  success: false,
+                  message: 'Failed to update post'
+            });
+      }
+}
+
 module.exports = {
       getAllPosts,
-      addBlog
+      addBlog,
+      editBlog
 }
