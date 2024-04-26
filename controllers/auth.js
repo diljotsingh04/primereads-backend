@@ -26,7 +26,7 @@ const signup = async (req, res) => {
 
             const token = Sign(newUser._id, newUser.name, newUser.email);
 
-            const {password, balance, ...rest} = newUser._doc;
+            const { password, balance, ...rest } = newUser._doc;
 
             return res.status(200).cookie('access-token', token, {
                   httpOnly: true
@@ -45,30 +45,30 @@ const signup = async (req, res) => {
 }
 
 // SignIn Controller
-const signin = async(req, res)=>{
+const signin = async (req, res) => {
       const userData = req.body;
       const validData = SigninValidation.safeParse(userData);
 
-      if(!validData.success){
+      if (!validData.success) {
             return res.send({
                   success: false,
                   message: 'Invalid Credentials'
             });
       }
 
-      try{
+      try {
             const findUser = await User.findOne(validData.data);
             const token = Sign(findUser._id, findUser.name, findUser.email);
 
-            const {password, balance, ...rest} = findUser._doc;
-            
+            const { password, balance, ...rest } = findUser._doc;
+
             return res.status(200).cookie('access-token', token).send({
                   success: true,
                   message: 'SignIn Successful',
                   ...rest
             });
       }
-      catch(e){
+      catch (e) {
             return res.send({
                   success: false,
                   message: 'Invalid Email and Password'
@@ -77,7 +77,7 @@ const signin = async(req, res)=>{
 }
 
 // Controller to validate user
-const validateUser = (req, res) =>{
+const validateUser = (req, res) => {
       const token = req.cookies['access-token'];
 
       const verifyToken = Verify(token);
@@ -92,9 +92,37 @@ const logout = (req, res) => {
       })
 }
 
+const getBalance = async (req, res) => {
+
+      const userId = req.params.userId;
+
+      try {
+            const user = await User.findOne({ _id: userId })
+            if (user) {
+                  
+                  return res.send({
+                        success: true,
+                        balance: 852
+                  });
+            }
+            else {
+                  return res.send({
+                        success: false,
+                        message: 'User not found'
+                  });
+            }
+      } catch (e) {
+            return res.send({
+                  success: false,
+                  message: 'Failed to fetch balance'
+            });
+      }
+}
+
 module.exports = {
       signup,
       signin,
       validateUser,
-      logout
+      logout,
+      getBalance
 }
