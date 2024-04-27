@@ -129,16 +129,24 @@ const unlockPost = async (req, res) => {
             if (!user) {
                   return res.json({ success: false, message: 'User not found' });
             }
-            
+
             // Check if the post is already unlocked
             if (user.unlockedBlogs.includes(postId)) {
                   return res.json({ success: false, message: 'Post is already unlocked' });
             }
 
+            if (user.balance <= 0) {
+                  return res.send({
+                        success: false,
+                        message: 'Insufficient balance'
+                  })
+            }
+
+            user.balance -= 1;
             // Add the postId to the unlockedBlogs array
-            user.unlockedBlogs.push(postId);
+            user.unlockedBlogs.unshift(postId);
             await user.save();
-            
+
             return res.status(200).json({ success: true, message: 'Post Unlocked' });
       } catch (error) {
             console.log(error)

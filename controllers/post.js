@@ -26,12 +26,11 @@ const getAllPosts = async (req, res) => {
             }).lean().sort({ updatedAt: sortDirection }).skip(startIndex).limit(limit);
 
             const totalPosts = (req.query.userId) ? await Post.countDocuments({ refTo: req.query.userId }) : await Post.countDocuments();
-            
-            // updatedtouser
-            
+
+
             const updatedAccordingToUser = postData.map(post => ({
                   ...post,
-                  unlocked: userData.unlockedBlogs.includes(post._id),   
+                  unlocked: userData.unlockedBlogs.includes(post._id),
                   isOwner: userData._id.toString() === post.refTo.toString()
             }))
 
@@ -51,6 +50,43 @@ const getAllPosts = async (req, res) => {
       }
 };
 
+const getUnlockedBlogs = async (req, res) => {
+
+      const token = Decode(req.cookies['access-token']);
+
+      try {
+            // finding user
+            const userData = await User.findOne({ _id: token.id });
+            // finding post
+            const postData = await Post.find({ _id: { $in: userData.unlockedBlogs } }).lean();
+
+            // Create a map of post IDs to their index in the unlockedBlogs array
+            const postIdToIndexMap = userData.unlockedBlogs.reduce((map, postId, index) => {
+                  map[postId] = index;
+                  return map;
+            }, {});
+
+            // Sort the postData array based on the index in the unlockedBlogs array
+            const unlockedBlogs = postData.sort((a, b) => {
+                  const indexA = postIdToIndexMap[a._id];
+                  const indexB = postIdToIndexMap[b._id];
+                  return indexA - indexB;
+            }).map(post => ({ ...post, unlocked: true }));
+
+            return res.status(200).send({
+                  success: true,
+                  postData: unlockedBlogs,
+            });
+      }
+      catch (e) {
+            console.log(e)
+            return res.status(400).send({
+                  success: false,
+                  message: 'Failed to get Posts'
+            })
+      }
+}
+
 const readBlog = async (req, res) => {
       const token = Decode(req.cookies['access-token']);
       const postId = req.query.postId;
@@ -61,7 +97,7 @@ const readBlog = async (req, res) => {
             // finding post
             const postData = await Post.findOne({ _id: postId });
 
-            if(userData.unlockedBlogs.includes(postId) || userData._id.toString() === postData.refTo.toString()){
+            if (userData.unlockedBlogs.includes(postId) || userData._id.toString() === postData.refTo.toString()) {
                   const postData = await Post.findOne({
                         ...(req.query.postId && { _id: req.query.postId }),
                   });
@@ -71,12 +107,12 @@ const readBlog = async (req, res) => {
                         postData,
                   })
             }
-            else{
+            else {
                   return res.status(200).send({
                         success: false,
                         message: 'Unlock this post to read it'
                   })
-            } 
+            }
       }
       catch (e) {
             console.log(e)
@@ -161,7 +197,7 @@ const editBlog = async (req, res) => {
             const updatePost = await Post.findByIdAndUpdate(
                   dataToEdit._id,
                   {
-                        $set:{
+                        $set: {
                               title: dataToEdit.title,
                               hashtags: dataToEdit.hashtags,
                               image: dataToEdit.image,
@@ -190,5 +226,6 @@ module.exports = {
       getAllPosts,
       addBlog,
       editBlog,
-      readBlog
+      readBlog,
+      getUnlockedBlogs
 }

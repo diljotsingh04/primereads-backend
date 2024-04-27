@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { getAllPosts, addBlog, editBlog, readBlog } = require('../controllers/post');
+const { getAllPosts, addBlog, editBlog, readBlog, getUnlockedBlogs } = require('../controllers/post');
 const { authUser } = require('../middlewares/authUser');
 const { titleCheck } = require('../middlewares/titleCheck');
 
@@ -14,5 +14,7 @@ router.post('/addblog', [authUser, titleCheck], addBlog);
 router.post('/editblog', authUser, editBlog);
 // posts/readblog
 router.post('/readblog', authUser, readBlog)
+// posts/getunlockedblogs
+router.post('/getunlockedblogs', authUser, getUnlockedBlogs)
 
 module.exports = router;
