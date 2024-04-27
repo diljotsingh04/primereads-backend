@@ -12,7 +12,8 @@ const userSchema = mongoose.Schema({
       email: { type: String, required: true, unique: true },
       password: { type: String, required: true },
       userImage: { type: String, default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnfAxGV-fZxGL9elM_hQ2tp7skLeSwMyUiwo4lMm1zyA&s"},
-      balance: Number
+      balance: Number,
+      unlockedBlogs: [mongoose.Schema.Types.ObjectId]
 });
 
 // Post's Schema

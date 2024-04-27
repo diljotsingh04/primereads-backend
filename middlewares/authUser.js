@@ -4,7 +4,6 @@ const { Verify } = require("../validation/jwttokens");
 const authUser = (req, res, next) => {
       const token = req.cookies['access-token']
 
-      
       try{
             const verify = Verify(token);
 

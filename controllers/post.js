@@ -1,13 +1,18 @@
-const { Post } = require("../db/database");
+const { Post, User } = require("../db/database");
 const { PostDataValidation } = require("../validation/dataValidation");
 const { Decode } = require("../validation/jwttokens");
+const { unlockPost } = require("./auth");
 
 const getAllPosts = async (req, res) => {
       const startIndex = parseInt(req.query.startIndex) || 0;
       const limit = parseInt(req.query.limit) || 9;
       const sortDirection = (req.query.order === 'asc') ? 1 : -1;
+      const token = Decode(req.cookies['access-token']);
 
       try {
+            // finding user
+            const userData = await User.findOne({ _id: token.id });
+            // finding post
             const postData = await Post.find({
                   ...(req.body.hashtagSearch && { hashtags: { $in: req.body.hashtagSearch } }),
                   ...(req.query.userId && { refTo: req.query.userId }),
@@ -18,17 +23,27 @@ const getAllPosts = async (req, res) => {
                               { content: { $regex: req.query.searchTerm, $option: 'i' } },
                         ],
                   })
-            }).sort({ updatedAt: sortDirection }).skip(startIndex).limit(limit);
+            }).lean().sort({ updatedAt: sortDirection }).skip(startIndex).limit(limit);
 
             const totalPosts = (req.query.userId) ? await Post.countDocuments({ refTo: req.query.userId }) : await Post.countDocuments();
+            
+            // updatedtouser
+            
+            const updatedAccordingToUser = postData.map(post => ({
+                  ...post,
+                  unlocked: userData.unlockedBlogs.includes(post._id),   
+                  isOwner: userData._id.toString() === post.refTo.toString()
+            }))
+
 
             return res.status(200).send({
                   success: true,
-                  postData,
+                  updatedAccordingToUser,
                   totalPosts
             })
       }
       catch (e) {
+            console.log(e)
             return res.status(400).send({
                   success: false,
                   message: 'Failed to get Posts'
@@ -77,9 +92,7 @@ const addBlog = async (req, res) => {
 const editBlog = async (req, res) => {
 
       const dataToEdit = req.body;
-
       const cookieData = Decode(req.cookies['access-token']);
-
 
       // Check if the access token is valid
       if (!cookieData) {
@@ -90,7 +103,6 @@ const editBlog = async (req, res) => {
       }
 
       try {
-
             // Check if the user is authorized to edit the post
             if (dataToEdit.refTo !== cookieData.id) {
                   return res.json({

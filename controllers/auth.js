@@ -1,6 +1,6 @@
 const { User } = require('../db/database');
 const { SignupValidation, SigninValidation } = require('../validation/dataValidation');
-const { Sign, Verify } = require('../validation/jwttokens');
+const { Sign, Verify, Decode } = require('../validation/jwttokens');
 
 // Signup Controller
 const signup = async (req, res) => {
@@ -92,17 +92,17 @@ const logout = (req, res) => {
       })
 }
 
-const getBalance = async (req, res) => {
+const getData = async (req, res) => {
 
       const userId = req.params.userId;
 
       try {
-            const user = await User.findOne({ _id: userId })
+            const user = await User.findOne({ _id: userId });
+            const { password, ...rest } = user._doc;
             if (user) {
-                  
                   return res.send({
                         success: true,
-                        balance: user.balance
+                        ...rest
                   });
             }
             else {
@@ -119,10 +119,39 @@ const getBalance = async (req, res) => {
       }
 }
 
+const unlockPost = async (req, res) => {
+      const postId = req.params.postId; // Assuming you're using Express.js and postId is extracted from the route parameter
+      const token = Decode(req.cookies['access-token'])
+
+      try {
+            // Find the user by ID and update the unlockedBlogs array
+            const user = await User.findById(token.id); // Assuming you have access to the authenticated user's ID through authUser middleware
+            if (!user) {
+                  return res.json({ success: false, message: 'User not found' });
+            }
+            
+            // Check if the post is already unlocked
+            if (user.unlockedBlogs.includes(postId)) {
+                  return res.json({ success: false, message: 'Post is already unlocked' });
+            }
+
+            // Add the postId to the unlockedBlogs array
+            user.unlockedBlogs.push(postId);
+            await user.save();
+            
+            return res.status(200).json({ success: true, message: 'Post Unlocked' });
+      } catch (error) {
+            console.log(error)
+            return res.json({ success: false, message: 'Internal Server Error' });
+      }
+
+}
+
 module.exports = {
       signup,
       signin,
       validateUser,
       logout,
-      getBalance
+      getData,
+      unlockPost
 }
