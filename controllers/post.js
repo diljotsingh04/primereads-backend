@@ -38,7 +38,7 @@ const getAllPosts = async (req, res) => {
 
             return res.status(200).send({
                   success: true,
-                  updatedAccordingToUser,
+                  postData: updatedAccordingToUser,
                   totalPosts
             })
       }
@@ -50,6 +50,42 @@ const getAllPosts = async (req, res) => {
             })
       }
 };
+
+const readBlog = async (req, res) => {
+      const token = Decode(req.cookies['access-token']);
+      const postId = req.query.postId;
+
+      try {
+            // finding user
+            const userData = await User.findOne({ _id: token.id });
+            // finding post
+            const postData = await Post.findOne({ _id: postId });
+
+            if(userData.unlockedBlogs.includes(postId) || userData._id.toString() === postData.refTo.toString()){
+                  const postData = await Post.findOne({
+                        ...(req.query.postId && { _id: req.query.postId }),
+                  });
+
+                  return res.status(200).send({
+                        success: true,
+                        postData,
+                  })
+            }
+            else{
+                  return res.status(200).send({
+                        success: false,
+                        message: 'Unlock this post to read it'
+                  })
+            } 
+      }
+      catch (e) {
+            console.log(e)
+            return res.status(400).send({
+                  success: false,
+                  message: 'Failed to get Posts'
+            })
+      }
+}
 
 const addBlog = async (req, res) => {
       const postData = req.body;
@@ -153,5 +189,6 @@ const editBlog = async (req, res) => {
 module.exports = {
       getAllPosts,
       addBlog,
-      editBlog
+      editBlog,
+      readBlog
 }
