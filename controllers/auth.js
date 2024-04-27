@@ -102,7 +102,7 @@ const getBalance = async (req, res) => {
                   
                   return res.send({
                         success: true,
-                        balance: 852
+                        balance: user.balance
                   });
             }
             else {
