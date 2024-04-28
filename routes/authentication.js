@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { signup, signin, validateUser, logout, getData, unlockPost } = require('../controllers/auth');
+const { signup, signin, validateUser, logout, getData, unlockPost, refer } = require('../controllers/auth');
 const { googleAuth } = require('../controllers/googleAuth');
 const { matchCookieWithId } = require('../middlewares/matchCookieWithId');
 const { authUser } = require('../middlewares/authUser');
@@ -16,8 +16,10 @@ router.get('/logout', logout);
 // Router for /auth/google
 router.post('/google', googleAuth);
 // Route for /auth/getbalance/userid
-router.get('/getuserdata/:userId', matchCookieWithId, getData)
-// Rote for /auth/unlockPost/:postId
+router.get('/getuserdata/:userId', matchCookieWithId, getData);
+// Route for /auth/unlockPost/:postId
 router.post('/unlockpost/:postId', authUser, unlockPost);
+// Route for /auth/refer/
+router.put('/refer', refer);
 
 module.exports = router;
