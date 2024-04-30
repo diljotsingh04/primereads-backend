@@ -92,6 +92,7 @@ const logout = (req, res) => {
     })
 }
 
+// Controller to get details to user
 const getData = async (req, res) => {
 
     const userId = req.params.userId;
@@ -119,6 +120,7 @@ const getData = async (req, res) => {
     }
 }
 
+// Controller to unlock the post
 const unlockPost = async (req, res) => {
     const postId = req.params.postId; // Assuming you're using Express.js and postId is extracted from the route parameter
     const token = Decode(req.cookies['access-token'])
@@ -155,6 +157,7 @@ const unlockPost = async (req, res) => {
 
 }
 
+// Controller to add bonus to both accounts
 const refer = async (req, res) => {
     const prevUserId = req.body.prevuserid;
     const curUserId = req.body.curuserid;
@@ -191,6 +194,57 @@ const refer = async (req, res) => {
     
 }
 
+// Controller to update user profile
+const update = async (req, res) =>{
+    const updateData = req.body;
+    const token = Decode(req.cookies['access-token'])
+
+    if(req.body.name === ""){
+        return res.send({
+            success: false,
+            message: 'Name cannot be empty'
+        });
+    }
+    if(req.body.password === ""){
+        return res.send({
+            success: false,
+            message: 'Password cannot be empty'
+        });
+    }
+    if(req.body.password && req.body.password.length < 6){
+        return res.send({
+            success: false,
+            message: 'Password cannot be less than 6 characters'
+        });
+    }
+    try{
+        const updateUser = await User.findByIdAndUpdate(
+            token.id,
+            {
+                $set: {
+                    name: req.body.name,
+                    password: req.body.password,
+                    userImage: req.body.userImage
+                }
+            }, {new: true}
+        );
+
+        const {password, ...rest} = updateUser._doc;
+
+        return res.status(200).send({
+            success: true,
+            ...rest
+        });
+    }
+    catch(error){
+        return res.send({
+            success: false,
+            message: 'Failed to update'
+        });
+    }
+    
+}
+
 module.exports = {
     signup,
     signin,
@@ -198,5 +252,6 @@ module.exports = {
     logout,
     getData,
     unlockPost,
-    refer
+    refer,
+    update
 }

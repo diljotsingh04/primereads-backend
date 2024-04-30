@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { signup, signin, validateUser, logout, getData, unlockPost, refer } = require('../controllers/auth');
+const { signup, signin, validateUser, logout, getData, unlockPost, refer, update } = require('../controllers/auth');
 const { googleAuth } = require('../controllers/googleAuth');
 const { matchCookieWithId } = require('../middlewares/matchCookieWithId');
 const { authUser } = require('../middlewares/authUser');
@@ -21,5 +21,7 @@ router.get('/getuserdata/:userId', matchCookieWithId, getData);
 router.post('/unlockpost/:postId', authUser, unlockPost);
 // Route for /auth/refer/
 router.put('/refer', refer);
+// Route for /auth/update
+router.put('/update', authUser, update)
 
 module.exports = router;
