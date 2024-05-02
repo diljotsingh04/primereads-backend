@@ -195,55 +195,63 @@ const refer = async (req, res) => {
 }
 
 // Controller to update user profile
-const update = async (req, res) =>{
+const update = async (req, res) => {
     const updateData = req.body;
-    const token = Decode(req.cookies['access-token'])
+    const token = Decode(req.cookies['access-token']);
 
-    if(req.body.name === ""){
+    if (req.body.name === "") {
         return res.send({
             success: false,
             message: 'Name cannot be empty'
         });
     }
-    if(req.body.password === ""){
+    if (req.body.password === "") {
         return res.send({
             success: false,
             message: 'Password cannot be empty'
         });
     }
-    if(req.body.password && req.body.password.length < 6){
+    if (req.body.password && req.body.password.length < 6) {
         return res.send({
             success: false,
             message: 'Password cannot be less than 6 characters'
         });
     }
-    try{
-        const updateUser = await User.findByIdAndUpdate(
-            token.id,
-            {
-                $set: {
-                    name: req.body.name,
-                    password: req.body.password,
-                    userImage: req.body.userImage
-                }
-            }, {new: true}
-        );
+    
+    try {
+        // Fetch the existing user data
+        const existingUser = await User.findById(token.id);
 
-        const {password, ...rest} = updateUser._doc;
+        // Update fields from request body if present, otherwise retain previous values
+        if (updateData.name && updateData.name !== undefined && updateData.name !== "") {
+            existingUser.name = updateData.name;
+        }
+        if (updateData.password && updateData.password !== undefined && updateData.password !== "") {
+            existingUser.password = updateData.password;
+        }
+        if (updateData.userImage && updateData.userImage !== undefined) {
+            existingUser.userImage = updateData.userImage;
+        }
+
+        // Save the updated user
+        const updateUser = await existingUser.save();
+
+        const { password, ...rest } = updateUser._doc;
 
         return res.status(200).send({
             success: true,
             ...rest
         });
-    }
-    catch(error){
+
+    } catch (error) {
+        console.log(error)
         return res.send({
             success: false,
             message: 'Failed to update'
         });
     }
-    
 }
+
 
 module.exports = {
     signup,
