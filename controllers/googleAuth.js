@@ -15,6 +15,7 @@ const googleAuth = async (req, res) => {
             return res.status(200).cookie('access-token', token).send({
                 success: true,
                 message: 'SignIn Successful',
+                newUser: false,
                 ...rest
             });
         }
@@ -37,6 +38,7 @@ const googleAuth = async (req, res) => {
             }).send({
                 success: true,
                 message: 'SignUp Successful',
+                newUser: true,
                 ...rest
             });
         }
