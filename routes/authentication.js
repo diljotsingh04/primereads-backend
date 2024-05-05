@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { signup, signin, validateUser, logout, getData, unlockPost, refer, update, checkout, validateTransaction } = require('../controllers/auth');
+const { signup, signin, validateUser, logout, getData, unlockPost, refer, update, checkout, validateTransaction, setBalance } = require('../controllers/auth');
 const { googleAuth } = require('../controllers/googleAuth');
 const { matchCookieWithId } = require('../middlewares/matchCookieWithId');
 const { authUser } = require('../middlewares/authUser');
@@ -24,8 +24,8 @@ router.put('/refer', refer);
 // Route for /auth/update
 router.put('/update', authUser, update);
 // Route for /auth/stripe-checkout-session
-router.post('/stripe-checkout-session', authUser, checkout)
+router.post('/stripe-checkout-session', authUser, checkout);
 // Route for /auth/validatetransaction
-router.post('/validate-transaction', authUser, validateTransaction)
+router.post('/validate-transaction', authUser, validateTransaction);
 
 module.exports = router;

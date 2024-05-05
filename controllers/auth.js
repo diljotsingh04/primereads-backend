@@ -299,8 +299,42 @@ const checkout = async (req, res) => {
 
 // Controller for validation transaction id
 const validateTransaction = async (req, res) => {
-    
+    const {transId} = req.body;
+    const token = Decode(req.cookies['access-token']);
+
+    try{
+        const getTransaction = await TransBuff.findOne({_id: transId});
+
+        if(getTransaction && getTransaction.userId.toString() === token.id){
+            const deleteTrans = await TransBuff.deleteOne({_id: transId});
+
+            const setBalance = await User.updateOne(
+                { _id: token.id },
+                {
+                    $inc: { balance: getTransaction.amount }
+                }
+            );
+
+            return res.send({
+                success: true, 
+                message: 'Transaction is valid'
+            });
+        }
+        else{
+            return res.send({
+                success: false, 
+                message: 'Invalid transaction'
+            });
+        }
+    }
+    catch(e){
+        return res.send({
+            success: false, 
+            message: 'Failed to get transaction'
+        });
+    }
 }
+
 
 module.exports = {
     signup,
