@@ -26,13 +26,21 @@ const postSchema = mongoose.Schema({
       refTo: mongoose.Schema.Types.ObjectId
 }, { timestamps: true } );
 
+// Transaction buffer Schema
+const transactionBSchema = mongoose.Schema({
+      userId: mongoose.Schema.Types.ObjectId,
+      amount: Number
+}, {timestamps: true});
 
 // User's Model
 const User = mongoose.model('user', userSchema);
 // Post's Model
-const Post = mongoose.model('posts', postSchema)
+const Post = mongoose.model('posts', postSchema);
+// tb Model
+const TransBuff = mongoose.model('transaction_buffer', transactionBSchema);
 
 module.exports = {
       User,
-      Post
+      Post,
+      TransBuff
 }

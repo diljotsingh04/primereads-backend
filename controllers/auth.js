@@ -1,6 +1,8 @@
-const { User } = require('../db/database');
+const { User, TransBuff } = require('../db/database');
 const { SignupValidation, SigninValidation } = require('../validation/dataValidation');
 const { Sign, Verify, Decode } = require('../validation/jwttokens');
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+require('dotenv').config();
 
 // Signup Controller
 const signup = async (req, res) => {
@@ -252,6 +254,53 @@ const update = async (req, res) => {
     }
 }
 
+// Controller for stripe checkout session
+const checkout = async (req, res) => {
+    const { products } = req.body;
+    const token = Decode(req.cookies['access-token']);
+
+    const lineItems = products.map(product => ({
+        price_data: {
+            currency: "inr",
+            product_data: {
+                name: product.name,
+                images: ["https://clipart-library.com/images/rijGxariR.jpg"]
+            },
+            unit_amount: Math.round(product.price * 100)
+        },
+        quantity: 1
+    }));
+
+    // adding token id and amount in database
+    try{
+        const transBuff = await TransBuff.create({
+            userId: token.id,
+            amount: products[0].price
+        });
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ["card"],
+            line_items: lineItems,
+            mode: "payment",
+            success_url: `http://localhost:5173/success?transaction_id=${transBuff._id}`,
+            cancel_url: `http://localhost:5173/failure?transaction_id=${transBuff._id}`,
+        })
+    
+        return res.send({ id: session.id });
+    }
+    catch(e){
+        console.log(e)
+        return res.send({
+            success: false,
+            message: 'Failed to store transaction id'
+        })
+    }
+}
+
+// Controller for validation transaction id
+const validateTransaction = async (req, res) => {
+    
+}
 
 module.exports = {
     signup,
@@ -261,5 +310,7 @@ module.exports = {
     getData,
     unlockPost,
     refer,
-    update
+    update,
+    checkout,
+    validateTransaction
 }
