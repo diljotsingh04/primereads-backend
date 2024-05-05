@@ -321,9 +321,11 @@ const validateTransaction = async (req, res) => {
             });
         }
         else{
+            const deleteTrans = await TransBuff.deleteOne({_id: transId});
+
             return res.send({
-                success: false, 
-                message: 'Invalid transaction'
+                success: true, 
+                message: 'Invalid user'
             });
         }
     }
