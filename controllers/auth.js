@@ -308,20 +308,22 @@ const validateTransaction = async (req, res) => {
         if(getTransaction && getTransaction.userId.toString() === token.id){
             const deleteTrans = await TransBuff.deleteOne({_id: transId});
 
-            const setBalance = await User.updateOne(
+            const setBalance = await User.findOneAndUpdate(
                 { _id: token.id },
-                {
-                    $inc: { balance: getTransaction.amount }
-                }
+                { $inc: { balance: getTransaction.amount } },
+                { new: true }
             );
 
             return res.send({
                 success: true, 
+                amount: setBalance.balance,
                 message: 'Transaction is valid'
             });
         }
-        else{
+        else if(getTransaction){
             const deleteTrans = await TransBuff.deleteOne({_id: transId});
+
+            console.log(deleteTrans)
 
             return res.send({
                 success: true, 
