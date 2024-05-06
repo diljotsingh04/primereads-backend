@@ -299,13 +299,13 @@ const checkout = async (req, res) => {
 
 // Controller for validation transaction id
 const validateTransaction = async (req, res) => {
-    const {transId} = req.body;
+    const {transId, isFail} = req.body;
     const token = Decode(req.cookies['access-token']);
 
     try{
         const getTransaction = await TransBuff.findOne({_id: transId});
 
-        if(getTransaction && getTransaction.userId.toString() === token.id){
+        if(getTransaction && getTransaction.userId.toString() === token.id && !isFail){
             const deleteTrans = await TransBuff.deleteOne({_id: transId});
 
             const setBalance = await User.findOneAndUpdate(
@@ -323,11 +323,15 @@ const validateTransaction = async (req, res) => {
         else if(getTransaction){
             const deleteTrans = await TransBuff.deleteOne({_id: transId});
 
-            console.log(deleteTrans)
-
             return res.send({
                 success: true, 
-                message: 'Invalid user'
+                message: 'Transaction failed'
+            });
+        }
+        else{
+            return res.send({
+                success: false, 
+                message: 'Invalid transaction'
             });
         }
     }
