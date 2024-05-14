@@ -1,4 +1,4 @@
-const { Post, User } = require("../db/database");
+const { Post, User, ContUsForm } = require("../db/database");
 const { PostDataValidation } = require("../validation/dataValidation");
 const { Decode } = require("../validation/jwttokens");
 const { unlockPost } = require("./auth");
@@ -222,10 +222,45 @@ const editBlog = async (req, res) => {
       }
 }
 
+const contactus = async (req, res) => {
+      const cookieData = Decode(req.cookies['access-token']);
+
+      if (!cookieData) {
+            return res.send({
+                  success: false,
+                  message: 'Invalid Token'
+            })
+      }
+
+      try {
+            const { fname, lname, email, subject, message } = req.body;
+            
+            const addForm = await ContUsForm.create({
+                  userId: cookieData.id,
+                  fname,
+                  lname,
+                  email,
+                  subject,
+                  message
+            })
+
+            return res.send({ 
+                  success: true,
+                  message: 'Contact form submitted successfully' 
+            });
+      } catch (error) {
+            return res.send({
+                  success: false,
+                  message: 'Failed to Submit Form'
+            });
+      }
+}
+
 module.exports = {
       getAllPosts,
       addBlog,
       editBlog,
       readBlog,
-      getUnlockedBlogs
+      getUnlockedBlogs,
+      contactus
 }
