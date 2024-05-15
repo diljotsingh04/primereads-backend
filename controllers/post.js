@@ -30,8 +30,8 @@ const getAllPosts = async (req, res) => {
 
             const updatedAccordingToUser = postData.map(post => ({
                   ...post,
-                  unlocked: userData.unlockedBlogs.includes(post._id),
-                  isOwner: userData._id.toString() === post.refTo.toString()
+                  unlocked: userData && userData.unlockedBlogs.includes(post._id),
+                  isOwner: userData && userData._id.toString() === post.refTo.toString()
             }))
 
 
