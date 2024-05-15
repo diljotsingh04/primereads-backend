@@ -288,8 +288,8 @@ const checkout = async (req, res) => {
             payment_method_types: ["card"],
             line_items: lineItems,
             mode: "payment",
-            success_url: `http://localhost:5173/success?transaction_id=${transBuff._id}`,
-            cancel_url: `http://localhost:5173/failure?transaction_id=${transBuff._id}`,
+            success_url: `${process.env.FRONTEND_URL}/success?transaction_id=${transBuff._id}`,
+            cancel_url: `${process.env.FRONTEND_URL}/failure?transaction_id=${transBuff._id}`,
         })
     
         return res.send({ id: session.id });
