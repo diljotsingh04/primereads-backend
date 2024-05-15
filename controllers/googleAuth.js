@@ -34,7 +34,10 @@ const googleAuth = async (req, res) => {
             const { password, balance, ...rest } = newUser._doc;
 
             return res.status(200).cookie('access-token', token, {
-                httpOnly: true
+                httpOnly: true,
+                sameSite: 'none', // Adjust as necessary
+                secure: true, // For HTTPS environments
+                
             }).send({
                 success: true,
                 message: 'SignUp Successful',

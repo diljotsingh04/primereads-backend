@@ -66,7 +66,11 @@ const signin = async (req, res) => {
 
         const { password, balance, ...rest } = findUser._doc;
 
-        return res.status(200).cookie('access-token', token).send({
+        return res.status(200).cookie('access-token', token,{
+            httpOnly: true,
+            sameSite: 'none', // Adjust as necessary
+            secure: true, // For HTTPS environments
+        }).send({
             success: true,
             message: 'SignIn Successful',
             ...rest
