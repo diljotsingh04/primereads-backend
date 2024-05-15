@@ -5,7 +5,7 @@ const matchCookieWithId = (req, res, next) => {
 
     try {
         const cookieData = Decode(req.cookies['access-token']);
-        console.log(req.cookies," from matchcookiewithid");
+        // console.log(req.cookies," from matchcookiewithid");
 
         const userId = req.params.userId;
 
